@@ -1,1 +1,116 @@
-// Java
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
+ */
+package csc370_runlengthencode;
+
+import java.util.Scanner;   // allows for reading user inputs
+
+/**
+ *
+ * @author ehcor
+ */
+
+public class CSC370_RunLengthEncode {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        // TODO code application logic here
+        
+        Scanner keyboard = new Scanner(System.in);
+        String input;
+        String theEncodedString;
+        RunLengthEncode encoder = new RunLengthEncode();
+        
+        // asking user for input string
+        System.out.println("Input the string that you want to be encoded: ");
+        input = keyboard.nextLine();
+        
+        theEncodedString = encoder.encodeString(input);
+        System.out.println("The encoded string: " + theEncodedString);
+    }
+}
+class RunLengthEncode {
+    private String encodedStr;
+    int lenOfString = 0;
+    public String encodeString (String inputStr){
+        lenOfString = inputStr.length();
+        
+        // making an array to hold all the chars
+        char currStoredChar = '&';
+        boolean shouldNotEncode = false;
+        int numOfTimesOfChar = 1;
+        String resultingStr = "";
+        
+        /*
+        mental note of which chars are allowed:
+        a through z
+        A through Z
+        digits 0 through 9
+        space char
+        these: {}[]:;'+=.,
+        */
+        
+        if (lenOfString >= 0 && lenOfString <= 50){
+            // for loop to go through each char of the array
+            for (int i = 0; i < lenOfString; i++){
+                char currLetter = inputStr.charAt(i);
+                int test = currLetter;
+
+                // this could have been optimized so much further most likely
+                if (currLetter > 32
+                        && ((currLetter >= 48 && currLetter <= 59) // checks for digits, and ; and :
+                        || currLetter == '[' || currLetter == ']'
+                        || currLetter == '{' || currLetter == '}'
+                        || currLetter == ':' || currLetter == ';'
+                        || currLetter == ' ' || currLetter == 39    // the 39 is '
+                        || currLetter == '+' || currLetter == '-'
+                        || currLetter == '.' || currLetter == '-'
+                        || (currLetter >= 65 && currLetter <= 90) // A - Z
+                        || (currLetter >= 97 && currLetter <= 122))){   // a - z
+                    //System.out.println("yeah this is in the range");
+                    if (currStoredChar == '&'){
+                        currStoredChar = inputStr.charAt(i);
+                    } else {    // something's already there
+                        if (currStoredChar != inputStr.charAt(i)){
+                            shouldNotEncode = true;
+                            encodedStr = inputStr;
+                            break;
+                        } else if (currStoredChar == inputStr.charAt(i)){
+                            numOfTimesOfChar++;
+                        } 
+                    }
+                } else {
+                    //System.out.println("nah");
+                }
+                //System.out.println(test);
+                //System.out.println(currLetter);
+                //System.out.println(" ");
+            }
+
+            // checking to see if the thing went through at least 5 times
+            if (numOfTimesOfChar < 5){
+                shouldNotEncode = true;
+                encodedStr = inputStr;
+            } else {
+                resultingStr += "/";
+                char numberThing = (char) (numOfTimesOfChar + '0');     // converting the number of times the char appeared in the string to a char so i can add it to a string
+                if (numOfTimesOfChar < 10){
+                    resultingStr += "0" + numberThing;
+                } else {
+                    resultingStr += numberThing;
+                }
+                resultingStr += currStoredChar;
+
+                encodedStr = resultingStr;
+            }
+        } else {    // string is outside those domains
+            
+        }
+        
+        // returns the encoded string.
+        return encodedStr;
+    }
+}
