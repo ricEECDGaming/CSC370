@@ -1,0 +1,116 @@
+#include <iostream>
+#include <string>     // to use std::string, std::to_string() and "+" operator acting on strings
+#include <string.h>
+#include <ctype.h>
+using namespace std;
+
+// encoding function prototype so the program can recognize it before it runs.
+string encodeString(string inputStr);
+
+// frequency determiner prototype so the program can recognize it before it runs.
+string freqDetermine(int numOfTimes, char selectedChar);
+
+int main() {
+
+	// defining variables
+	string encodedString;
+	string input;
+
+	// asks the user for the inputted string
+	cout << "Input the string that you want to be encoded: " << endl;
+	cin >> input;
+
+	// runs the function to see if the inputted string can be encoded
+	encodedString = encodeString(input);
+
+	cout << "The encoded string: " << encodedString << endl;
+
+	return 0;
+}
+
+// function that encodes the string
+static string encodeString(string inputStr) {
+	string resultingStr = "";
+	string testStr = "";
+	int lenOfStr = inputStr.length();
+	int numOfCharsInStr = 1;
+	char currChar = '&';	// set to & as a default value for now
+
+	// main statement where the REAL work begins.
+	if (lenOfStr >= 0 && lenOfStr <= 50) {	// initial check to see if the inputted string fits within the constraints of the program first
+		// once that passes, we now do a for loop
+		for (int i = 0; i < lenOfStr; i++) {
+			if (inputStr[i] > 32 && ((inputStr[i] >= 48 && inputStr[i] <= 59)	// checks for digits, ; and :
+				|| inputStr[i] == '[' || inputStr[i] == ']'
+				|| inputStr[i] == '{' || inputStr[i] == '}'
+				|| inputStr[i] == '(' || inputStr[i] == ')'
+				|| inputStr[i] == ':' || inputStr[i] == ';'
+				|| inputStr[i] == 32 || inputStr[i] == 39		// 39 is ', 
+				|| inputStr[i] == '+' || inputStr[i] == '-'
+				|| (inputStr[i] >= 65 && inputStr[i] <= 90)		// A - Z
+				|| (inputStr[i] >= 97 && inputStr[i] <= 122))) {	// a - z
+
+				if (currChar == '&') {
+					currChar = inputStr[i];
+					resultingStr = resultingStr + currChar;
+
+				} else {
+					if (currChar != inputStr[i]) {
+						if (numOfCharsInStr > 4) {
+							//cout << "before substringing it: " << resultingStr << endl;
+							//resultingStr = resultingStr.substr(0, lenOfStr - numOfCharsInStr);
+							for (int i = 1; i <= numOfCharsInStr; i++) {
+								resultingStr.pop_back();
+							}
+							//cout << "before substringing it: " << resultingStr << endl;
+							resultingStr = resultingStr + freqDetermine(numOfCharsInStr, currChar);
+							//cout << "did this string adding work???" << resultingStr << endl;
+							currChar = inputStr[i];
+							numOfCharsInStr = 1; // reset
+						}
+						if (numOfCharsInStr < 5) {
+							currChar = inputStr[i];
+							resultingStr = resultingStr + currChar;
+						}
+					} else if (currChar == inputStr[i]) {
+						numOfCharsInStr++;
+						resultingStr = resultingStr + currChar;
+						if (i == lenOfStr - 1 && numOfCharsInStr > 4) {
+							//cout << "before substringing it: " << resultingStr << endl;
+							for (int i = 1; i < numOfCharsInStr+1; i++) {
+								resultingStr.pop_back();
+							}
+							//cout << "after substringing it: " << resultingStr << endl;
+							resultingStr = resultingStr + freqDetermine(numOfCharsInStr, currChar);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// returns the "encoded" string.
+	return resultingStr;
+}
+
+static string freqDetermine(int numOfTimes, char selectedChar){
+	char storedChar = selectedChar;
+	int numOfTimesOfChar = numOfTimes;
+	string resultingStr = "";
+	string encodedStr;
+	resultingStr.append("/");
+	char numberThing = static_cast<char>(numOfTimesOfChar);
+	//cout << numberThing << endl;
+	if (numOfTimesOfChar < 10) {
+		resultingStr.append("0");
+		resultingStr += std::to_string(numberThing);	// i have to do this because i can't append an int to a string object
+		//resultingStr += numberThing;
+	} else {
+		resultingStr += std::to_string(numberThing);	// i have to do this because i can't append an int to a string object
+		//resultingStr += numberThing;
+	}
+	resultingStr += storedChar;
+	encodedStr = resultingStr;
+	//cout << resultingStr << endl;
+	return encodedStr;
+}
