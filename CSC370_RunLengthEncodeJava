@@ -44,6 +44,8 @@ class RunLengthEncode {
         int numOfTimesOfChar = 1;
         String resultingStr = "";
         
+        determineFrequency freqObj = new determineFrequency();
+        
         /*
         mental note of which chars are allowed:
         a through z
@@ -58,28 +60,52 @@ class RunLengthEncode {
             for (int i = 0; i < lenOfString; i++){
                 char currLetter = inputStr.charAt(i);
                 int test = currLetter;
-
                 // this could have been optimized so much further most likely
                 if (currLetter > 32
                         && ((currLetter >= 48 && currLetter <= 59) // checks for digits, and ; and :
                         || currLetter == '[' || currLetter == ']'
                         || currLetter == '{' || currLetter == '}'
                         || currLetter == ':' || currLetter == ';'
+                        || currLetter == '(' || currLetter == ')'
                         || currLetter == ' ' || currLetter == 39    // the 39 is '
                         || currLetter == '+' || currLetter == '-'
                         || currLetter == '.' || currLetter == '-'
                         || (currLetter >= 65 && currLetter <= 90) // A - Z
                         || (currLetter >= 97 && currLetter <= 122))){   // a - z
                     //System.out.println("yeah this is in the range");
+                    
                     if (currStoredChar == '&'){
-                        currStoredChar = inputStr.charAt(i);
+                        ///System.out.println("HEY");
+                        currStoredChar = currLetter;
+                        resultingStr += currStoredChar;
                     } else {    // something's already there
-                        if (currStoredChar != inputStr.charAt(i)){
-                            shouldNotEncode = true;
-                            encodedStr = inputStr;
-                            break;
-                        } else if (currStoredChar == inputStr.charAt(i)){
+                        ///System.out.println(currStoredChar + " " + currLetter);
+                        if (currStoredChar != currLetter){
+                            //shouldNotEncode = true;
+                            //encodedStr = inputStr;
+                            //break;
+                            if (numOfTimesOfChar > 4){
+                                //System.out.println("yeah we need to determine the frequency of this char LOL");
+                                resultingStr = resultingStr.substring(0, resultingStr.length() - numOfTimesOfChar);
+                                resultingStr += freqObj.freqDetermine(numOfTimesOfChar, currStoredChar);
+                                currStoredChar = currLetter;
+                                numOfTimesOfChar = 1;   // reset
+                            }
+                            if (numOfTimesOfChar < 5){
+                                //System.out.println("wtf is going on");
+                                currStoredChar = currLetter;
+                                resultingStr += currStoredChar;
+                            }
+                        } else if (currStoredChar == currLetter){
+                            //System.out.println("the things match.");
                             numOfTimesOfChar++;
+                            resultingStr += currStoredChar;
+                            
+                            if (i == lenOfString - 1 && numOfTimesOfChar > 4){
+                                //System.out.println("you have hit the end of the string, and there's still some stuff that should have been encoded...");
+                                resultingStr = resultingStr.substring(0, resultingStr.length() - numOfTimesOfChar);
+                                resultingStr += freqObj.freqDetermine(numOfTimesOfChar, currStoredChar);
+                            }
                         } 
                     }
                 } else {
@@ -87,9 +113,11 @@ class RunLengthEncode {
                 }
                 //System.out.println(test);
                 //System.out.println(currLetter);
+                //System.out.println(currStoredChar + " .");
                 //System.out.println(" ");
             }
 
+            /*
             // checking to see if the thing went through at least 5 times
             if (numOfTimesOfChar < 5){
                 shouldNotEncode = true;
@@ -106,11 +134,37 @@ class RunLengthEncode {
 
                 encodedStr = resultingStr;
             }
+            */
+            encodedStr = resultingStr;
         } else {    // string is outside those domains
             
         }
         
         // returns the encoded string.
+        return encodedStr;
+    }
+}
+
+class determineFrequency {
+    public String freqDetermine (int numOfTimes, char selectedChar){
+        // making a thing to hold all the chars
+        char currStoredChar = selectedChar;
+        boolean shouldNotEncode = false;
+        int numOfTimesOfChar = numOfTimes;
+        String resultingStr = "";
+        String encodedStr;
+        //System.out.println("is this shit running");
+        resultingStr += "/";
+        char numberThing = (char) (numOfTimesOfChar + '0');     // converting the number of times the char appeared in the string to a char so i can add it to a string
+        if (numOfTimesOfChar < 10){
+            resultingStr += "0" + numberThing;
+        } else {
+            resultingStr += numberThing;
+        }
+        resultingStr += currStoredChar;
+
+        encodedStr = resultingStr;
+        
         return encodedStr;
     }
 }
