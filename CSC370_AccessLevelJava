@@ -1,0 +1,142 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
+ */
+package csc370_accesslevel;
+
+import java.util.Scanner;   // allows for reading user inputs
+/**
+ *
+ * @author ehcor
+ */
+public class CSC370_AccessLevel {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        // ---------------------------------------------------------------------
+        //                  variables
+        int maxElementsAllowed = 50;    // max amount of elements that can be read as an input.
+        int[] rights = new int [maxElementsAllowed];    // the array that holds the inputted stuff.
+        for (int a = 0; a < maxElementsAllowed; a++){
+            rights[a] = -1; // all slots of it are filled with null variables, in the case that the input is less than maxElementsAllowed.
+        }
+        int currArrayIndex = 0; // current index of the array.
+        int numbersInThisCurrentInput = 0;      // holds the value for the current number that it is processing, mainly for double digit numbers such as 14 to properly insert them into the array.
+        int numbersInActualArray = 0;       // tracks how many numbers are in the array.
+        
+        boolean arrayHasInvalidValueRange = false;      // flag that checks if the value input range is invalid.
+        boolean inputHasValidRange = true;              // flag that checks if the value range is invalid.
+        
+        // object for the access evaluator class.
+        determineAccessLevel encoder = new determineAccessLevel();
+        
+        // scanner class as well as the inputs.
+        Scanner keyboard = new Scanner(System.in);
+        String input;
+        int minPermission;
+        
+        String accessDetermined;        // output string for the access granted.
+        // ---------------------------------------------------------------------
+        //                              inputs
+        System.out.println("Input the access level string: ");
+        input = keyboard.nextLine();
+        
+        System.out.println("Input the minimum permission access value: ");
+        minPermission = keyboard.nextInt();
+        // ---------------------------------------------------------------------
+        //                              for loop
+        // this for loop takes all the integers from the inputted string and places them into an array
+        int currStoredNum = -1;
+        for (int i = 0; i < input.length(); i++){
+            char currIndex;
+            currIndex = input.charAt(i);
+            
+            if (currIndex >= 48 && currIndex <= 57){
+                if (currStoredNum == -1){
+                    currStoredNum = 0;
+                }
+                if (numbersInThisCurrentInput != 0){
+                    currStoredNum *= 10;
+                    //System.out.println(currStoredNum);
+                }
+                numbersInThisCurrentInput++;
+                int theNumber = (currIndex - '0');
+                //System.out.println("theNumber:" + theNumber);
+                currStoredNum += theNumber;
+                //System.out.println("current stored number: " + currStoredNum);
+            } else {
+                if (currStoredNum != -1){
+                    // checks if the input has reached over 
+                    if (currArrayIndex >= maxElementsAllowed){
+                        inputHasValidRange = false;
+                        break;
+                    }
+                    rights[currArrayIndex] = currStoredNum;
+                    //System.out.println(currStoredNum);
+                    //System.out.println(rights[0]);
+                    currStoredNum = -1;
+                    currArrayIndex++;
+                }
+                //System.out.println("no");
+            }
+        }
+        // this check checks for if the inputted array has more than 100 elements in it.
+        //      if it does, then the main part of the code does not run and returns an error code.
+        if (inputHasValidRange){
+            // this for loop does a check for how many elements are actually in the array.
+            for (int j = 0; j < maxElementsAllowed; j++){
+                if (rights[j] == -1){
+                    break;
+                }
+                numbersInActualArray++;
+            }
+            // making another array so we don't have to deal with the null spots in it.
+            int[] rightsActual = new int [numbersInActualArray];
+            System.arraycopy(rights, 0, rightsActual, 0, numbersInActualArray);
+            // this for loop does a check for the values of the array. if one of them is out of range, then the program is done.
+            for (int t = 0; t < numbersInActualArray; t++){
+                if (rightsActual[t] < 0 || rightsActual[t] > 100){
+                    arrayHasInvalidValueRange = true;
+                    break;
+                }
+            }
+            // ---------------------------------------------------------------------
+            // check to see if the permission value is within range as well as the individual values as well
+            if (minPermission >= 0 && minPermission <= 100){
+                if (!arrayHasInvalidValueRange){
+                    if (numbersInActualArray <= maxElementsAllowed){
+                        accessDetermined = encoder.accessCheck(rightsActual, minPermission);
+                        System.out.println("Level of access for your input with permission value "
+                                + minPermission + ": " + accessDetermined);
+                    } else if (numbersInActualArray > maxElementsAllowed){
+                        System.out.println("ERROR: The total amount of inputted values is above 50. Please try again and input less values.");
+                    }
+                } else {
+                    System.out.println("ERROR: An inputted value is either below 0 or above 100. Please try again.");
+                }
+            } else {
+                System.out.println("ERROR: Minimum Permission value must be between 0 and 100. Please try again.");
+            }
+        } else {
+           System.out.println("ERROR: The total amount of inputted values is above 50. Please try again and input less values.");
+        }
+    }
+}
+
+// class that runs the access check for the inputted string. called from the main method.
+class determineAccessLevel {
+    private String calculatedLevel = "";
+    public String accessCheck (int[] inputArray, int minPerms){
+        int arrayLength = inputArray.length;    // gives us the amount of numbers in the array
+        for (int k = 0; k < arrayLength; k++){
+            if (inputArray[k] >= minPerms){
+                calculatedLevel += "A";
+            } else {
+                calculatedLevel += "D";
+            }
+        }
+        return calculatedLevel;
+    }
+}
